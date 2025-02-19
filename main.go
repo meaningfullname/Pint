@@ -7,10 +7,13 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
+	"Pint/database"
+	"Pint/routes"
 )
 
 func main() {
-	// Load env variables
+	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -18,21 +21,26 @@ func main() {
 	// Initialize router
 	r := gin.Default()
 
-	// Configure CORS
+	// CORS configuration
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
 
-	// Initialize routes
-	initializeRoutes(r)
+	// Connect to database
+	database.ConnectDB()
 
-	// Start server
+	// Setup routes
+	routes.SetupRoutes(r)
+
+	// Get port from env
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "5000"
 	}
+
+	// Run server
 	r.Run(":" + port)
 }
